@@ -43,7 +43,7 @@ startButton.addEventListener("click", function () {
     })
     .then(function (stream) {
       video.srcObject = stream;
-      detectMarker(video);
+      detectMarker(video); // Call the function to detect the marker
     })
     .catch(function (err) {
       console.error("Error accessing the camera: ", err);
@@ -61,15 +61,21 @@ function detectMarker(videoElement) {
     const frame = context.getImageData(0, 0, canvas.width, canvas.height);
     const data = frame.data;
 
+    let markerDetected = false;
+
     for (let i = 0; i < data.length; i += 4) {
       const red = data[i];
       const green = data[i + 1];
       const blue = data[i + 2];
 
       if (red > 200 && green > 200 && blue > 200) {
-        calculateRPM(); // Marker detected, calculate RPM
+        markerDetected = true;
         break;
       }
+    }
+
+    if (markerDetected) {
+      calculateRPM(); // Marker detected, calculate RPM
     }
   }, 100); // Check every 100ms
 }
