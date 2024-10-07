@@ -9,14 +9,16 @@
   <body>
     <h1>Turntable RPM Calculator</h1>
 
-    <!-- Container for video feed and RPM readout -->
-    <div class="container">
+    <!-- Container for video feed and crosshair -->
+    <div class="video-container">
       <video id="video" width="320" height="240" autoplay playsinline></video>
-      <!-- Added playsinline to prevent fullscreen -->
-      <p>Current RPM: <span id="rpmDisplay">0</span></p>
-      <p>Status: <span id="status">Not Calibrated</span></p>
-      <button id="startButton">Start Camera</button>
+      <div id="crosshair"></div>
+      <!-- This defines the ROI visually -->
     </div>
+
+    <p>Current RPM: <span id="rpmDisplay">0</span></p>
+    <p>Status: <span id="status">Not Calibrated</span></p>
+    <button id="startButton">Start Camera</button>
 
     <script src="script.js"></script>
   </body>

@@ -55,10 +55,10 @@ function detectMarker(videoElement) {
   canvas.width = videoElement.videoWidth;
   canvas.height = videoElement.videoHeight;
 
-  const regionWidth = 100; // Width of the region of interest
-  const regionHeight = 100; // Height of the region of interest
-  const regionX = (canvas.width - regionWidth) / 2; // Center region horizontally
-  const regionY = (canvas.height - regionHeight) / 2; // Center region vertically
+  const regionWidth = 100; // Width of the region of interest (matches the crosshair)
+  const regionHeight = 100; // Height of the region of interest (matches the crosshair)
+  const regionX = (canvas.width - regionWidth) / 2; // Center the region horizontally
+  const regionY = (canvas.height - regionHeight) / 2; // Center the region vertically
 
   setInterval(function () {
     context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
