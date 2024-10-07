@@ -2,9 +2,11 @@ const video = document.getElementById("video");
 const rpmDisplay = document.getElementById("rpmDisplay");
 const statusDisplay = document.getElementById("status");
 const startButton = document.getElementById("startButton");
+const flashlightButton = document.getElementById("flashlightButton");
 
 let lastDetectionTime = null;
 let rpm = 0;
+let isFlashlightOn = false;
 
 function calculateRPM(currentTime) {
   if (lastDetectionTime !== null) {
@@ -33,6 +35,44 @@ function updateUI(rpm) {
   }
 }
 
+function toggleFlashlight() {
+  if (isFlashlightOn) {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        devices.forEach((device) => {
+          if (device.kind === "videoinput") {
+            const track = video.srcObject.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            if (capabilities.torch) {
+              track.applyConstraints({ advanced: [{ torch: false }] });
+            }
+          }
+        });
+      })
+      .catch(console.error);
+    isFlashlightOn = false;
+  } else {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        devices.forEach((device) => {
+          if (device.kind === "videoinput") {
+            const track = video.srcObject.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            if (capabilities.torch) {
+              track.applyConstraints({ advanced: [{ torch: true }] });
+            }
+          }
+        });
+      })
+      .catch(console.error);
+    isFlashlightOn = true;
+  }
+}
+
+flashlightButton.addEventListener("click", toggleFlashlight);
+
 startButton.addEventListener("click", function () {
   navigator.mediaDevices
     .getUserMedia({
@@ -55,8 +95,8 @@ function detectMarker(videoElement) {
   canvas.width = videoElement.videoWidth;
   canvas.height = videoElement.videoHeight;
 
-  const regionWidth = 100; // Width of the region of interest (matches the crosshair)
-  const regionHeight = 100; // Height of the region of interest (matches the crosshair)
+  const regionWidth = 100; // Width of the region of interest
+  const regionHeight = 100; // Height of the region of interest
   const regionX = (canvas.width - regionWidth) / 2; // Center the region horizontally
   const regionY = (canvas.height - regionHeight) / 2; // Center the region vertically
 
@@ -71,21 +111,33 @@ function detectMarker(videoElement) {
     const data = frame.data;
 
     let markerDetected = false;
+    let totalBrightness = 0;
+
     for (let i = 0; i < data.length; i += 4) {
       const red = data[i];
       const green = data[i + 1];
       const blue = data[i + 2];
+      totalBrightness += (red + green + blue) / 3; // Average brightness of each pixel
 
-      // Detect a bright color (assuming the marker is bright white or a distinct color)
       if (red > 200 && green > 200 && blue > 200) {
         markerDetected = true;
-        break;
       }
     }
 
+    const averageBrightness = totalBrightness / (data.length / 4);
+    console.log("Average Brightness:", averageBrightness);
+
+    // Turn on flashlight if brightness is below a certain threshold
+    if (averageBrightness < 50 && !isFlashlightOn) {
+      toggleFlashlight();
+    }
+
     if (markerDetected) {
+      console.log("Marker detected!");
       const currentTime = new Date().getTime();
       calculateRPM(currentTime); // Marker detected, calculate RPM
+    } else {
+      console.log("No marker detected in this frame.");
     }
   }, 100); // Check every 100ms
 }
