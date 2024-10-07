@@ -3,24 +3,23 @@ const rpmDisplay = document.getElementById("rpmDisplay");
 const statusDisplay = document.getElementById("status");
 const startButton = document.getElementById("startButton");
 
-let lastTime = null;
+let lastDetectionTime = null;
 let rpm = 0;
 
-function calculateRPM() {
-  const currentTime = new Date().getTime();
-  if (lastTime !== null) {
-    const timeDiff = (currentTime - lastTime) / 1000; // seconds
-    rpm = 60 / timeDiff;
+function calculateRPM(currentTime) {
+  if (lastDetectionTime !== null) {
+    const timeDiff = (currentTime - lastDetectionTime) / 1000; // seconds
+    rpm = 60 / timeDiff; // Calculate RPM based on time between passes
     updateUI(rpm);
   }
-  lastTime = currentTime;
+  lastDetectionTime = currentTime;
 }
 
 function updateUI(rpm) {
   rpmDisplay.textContent = rpm.toFixed(2);
 
-  const desiredRPM = 33.33; // Desired RPM for calibration
-  const tolerance = 0.02; // 2% tolerance
+  const desiredRPM = 33.33; // Target RPM
+  const tolerance = 0.02; // 2% tolerance range
 
   const lowerBound = desiredRPM * (1 - tolerance);
   const upperBound = desiredRPM * (1 + tolerance);
@@ -56,18 +55,28 @@ function detectMarker(videoElement) {
   canvas.width = videoElement.videoWidth;
   canvas.height = videoElement.videoHeight;
 
+  const regionWidth = 100; // Width of the region of interest
+  const regionHeight = 100; // Height of the region of interest
+  const regionX = (canvas.width - regionWidth) / 2; // Center region horizontally
+  const regionY = (canvas.height - regionHeight) / 2; // Center region vertically
+
   setInterval(function () {
     context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-    const frame = context.getImageData(0, 0, canvas.width, canvas.height);
+    const frame = context.getImageData(
+      regionX,
+      regionY,
+      regionWidth,
+      regionHeight
+    ); // Focus on the center region
     const data = frame.data;
 
     let markerDetected = false;
-
     for (let i = 0; i < data.length; i += 4) {
       const red = data[i];
       const green = data[i + 1];
       const blue = data[i + 2];
 
+      // Detect a bright color (assuming the marker is bright white or a distinct color)
       if (red > 200 && green > 200 && blue > 200) {
         markerDetected = true;
         break;
@@ -75,7 +84,8 @@ function detectMarker(videoElement) {
     }
 
     if (markerDetected) {
-      calculateRPM(); // Marker detected, calculate RPM
+      const currentTime = new Date().getTime();
+      calculateRPM(currentTime); // Marker detected, calculate RPM
     }
   }, 100); // Check every 100ms
 }
