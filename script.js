@@ -36,7 +36,11 @@ function updateUI(rpm) {
 
 startButton.addEventListener("click", function () {
   navigator.mediaDevices
-    .getUserMedia({ video: true })
+    .getUserMedia({
+      video: {
+        facingMode: { exact: "environment" }, // Use the back camera
+      },
+    })
     .then(function (stream) {
       video.srcObject = stream;
       detectMarker(video);

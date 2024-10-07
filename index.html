@@ -8,9 +8,19 @@
   </head>
   <body>
     <h1>Turntable RPM Calculator</h1>
-    <video id="video" width="320" height="240" autoplay></video>
+
+    <!-- Video container for the camera feed -->
+    <div class="video-container">
+      <video id="video" width="320" height="240" autoplay></video>
+    </div>
+
+    <!-- Display for current RPM -->
     <p>Current RPM: <span id="rpmDisplay">0</span></p>
+
+    <!-- Status of calibration -->
     <p>Status: <span id="status">Not Calibrated</span></p>
+
+    <!-- Button to start the camera -->
     <button id="startButton">Start Camera</button>
 
     <script src="script.js"></script>

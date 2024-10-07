@@ -4,9 +4,19 @@ body {
   padding: 20px;
 }
 
+.video-container {
+  margin: 0 auto;
+  width: 320px;
+  height: 240px;
+  border: 2px solid black;
+  overflow: hidden;
+  position: relative;
+}
+
 video {
-  border: 1px solid black;
-  margin-bottom: 20px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Keeps the video in the box without distortion */
 }
 
 button {
